@@ -1,0 +1,35 @@
+pipeline {
+    agent { label 'worker1' }
+
+    triggers {
+        // Poll SCM every minute (replace with webhook for instant triggers)
+        pollSCM('* * * * *')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code from GitHub'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building with Maven'
+                dir('maven/my-app') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running validation'
+                dir('maven/my-app') {
+                    sh 'java -cp target/my-app-1.0-SNAPSHOT.jar com.mycompany.app.App'
+                }
+            }
+        }
+    }
+}
